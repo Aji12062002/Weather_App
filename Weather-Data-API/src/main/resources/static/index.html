@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Weather App</title>
+<style>
+  /* Reset some default styles */
+  body, h1, p, input, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #83a4d4, #b6fbff);
+    color: #333;
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  h1 {
+    text-align: center;
+    padding-bottom: 15px;
+    color: #0b3d91;
+  }
+  label {
+    font-weight: bold;
+    display: block;
+    padding-bottom: 8px;
+  }
+  input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #0b3d91;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    transition: border-color 0.3s ease;
+  }
+  input:focus {
+    border-color: #1e90ff;
+    outline: none;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    background-color: #0b3d91;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #1e90ff;
+  }
+  #result {
+    margin-top: 25px;
+    padding: 15px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  }
+  #result h2 {
+    margin-bottom: 12px;
+    color: #0b3d91;
+  }
+  #result p {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .error {
+    color: #b22222;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<h1>Weather App</h1>
+<label for="locationInput">Enter Location:</label>
+<input type="text" id="locationInput" placeholder="e.g., Chennai, India" />
+<button onclick="fetchWeather()">Get Weather</button>
+
+<div id="result"></div>
+
+<script>
+  async function fetchWeather() {
+    const location = document.getElementById('locationInput').value.trim();
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '';
+
+    if (!location) {
+      resultDiv.innerHTML = '<p class="error">Please enter a location.</p>';
+      return;
+    }
+
+    resultDiv.textContent = 'Loading...';
+
+    try {
+      const response = await fetch(`/weather?location=${encodeURIComponent(location)}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        resultDiv.innerHTML = `<p class="error">Error: ${errorData.error || 'Unknown error'}</p>`;
+        return;
+      }
+
+      const data = await response.json();
+
+      resultDiv.innerHTML = `
+        <h2>Weather in ${location}</h2>
+        <p><strong>Temperature:</strong> ${data.temperature} °C</p>
+        <p><strong>Wind Speed:</strong> ${data.windSpeed} km/h</p>
+        <p><strong>Weather Code:</strong> ${data.weatherCode} ${data.weatherIcon || ''}</p>
+        <p><strong>Description:</strong> ${data.weatherDescription || 'N/A'}</p>
+        <p><strong>Time:</strong> ${data.time}</p>
+      `;
+    } catch (error) {
+      resultDiv.innerHTML = `<p class="error">Error fetching weather data.</p>`;
+      console.error(error);
+    }
+  }
+</script>
+
+</body>
+</html>
